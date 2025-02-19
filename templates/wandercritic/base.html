@@ -1,0 +1,57 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wander Critic - Look for the Right Place at Right Place!</title>
+    <link rel="stylesheet" href="{% static 'styles/main.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'wandercritic:index' %}" class="logo">
+                <img src="{% static 'assets/Wander_Critic_logo.png' %}" alt="Wander Critic Logo">
+            </a>
+            <div class="nav-links">
+                <a href="{% url 'wandercritic:explore' %}">Explore</a>
+                <a href="{% url 'wandercritic:login' %}" class="btn btn-outline">Sign In</a>
+                <a href= "{% url 'wandercritic:register' %}" class="btn btn-primary register">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Pages</h3>
+                <ul>
+                    <li><a href="{% url 'wandercritic:login' %}">Login</a></li>
+                    <li><a href="{% url 'wandercritic:register' %}">Register</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Explore</h3>
+                <ul>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=seasons">Seasons</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=budget">Budget</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=travel-theme">Travel Theme</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=activity">Activity Based</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
