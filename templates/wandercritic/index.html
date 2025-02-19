@@ -1,0 +1,89 @@
+{% extends 'wandercritic/base.html' %}
+{% load static %} 
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero" style="background-image: url('static/assets/Landscape/AdobeStock_162434345_Preview.jpeg');">
+        <div class="hero-overlay">
+            <h1>Wander Critic</h1>
+            <p>Look for the Right Place at Right Place!</p>
+            <div class="hero-buttons">
+                <a href="{% url 'wandercritic:explore' %}" class="btn btn-primary">Explore</a>
+                <a href="{% url 'wandercritic:register' %}" class="btn btn-outline btn-light">Register</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Places Section -->
+    <section class="main-content">
+        <h2>Places to Visit this Season!</h2>
+        <div class="places-grid">
+            <a href="static/places/edinburgh-castle.html" class="place-card">
+                <img src="static/assets/Landscape/AdobeStock_168532350_Preview.jpeg" alt="Edinburgh Castle">
+                <div class="place-content">
+                    <h3>Edinburgh Castle</h3>
+                    <div class="rating">★★★★★</div>
+                    <p>Historic fortress dominating Edinburgh's skyline</p>
+                </div>
+            </a>
+            <a href="static/places/isle-of-skye.html" class="place-card">
+                <img src="static/assets/Landscape/AdobeStock_234673144_Preview.jpeg" alt="Isle of Skye">
+                <div class="place-content">
+                    <h3>Isle of Skye</h3>
+                    <div class="rating">★★★★★</div>
+                    <p>Dramatic landscapes and stunning coastline</p>
+                </div>
+            </a>
+            <a href="static/places/loch-ness.html" class="place-card">
+                <img src="static/assets/Landscape/AdobeStock_220123426_Preview.jpeg" alt="Highland Mountains">
+                <div class="place-content">
+                    <h3>Loch Ness</h3>
+                    <div class="rating">★★★★★</div>
+                    <p>Famous lake with mythical creature legends</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="main-content">
+            <h2> Reviews </h2>
+            <p>Look at what your Fellow Travels say about Us!</p>
+            <p>-p.s Hopefully nothing bad 😅</p>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="static/assets/Profile/Profile 1.jpeg" alt="Sarah Johnson">
+                        <div>
+                            <h4>Sarah Johnson</h4>
+                            <p>Adventure Enthusiast</p>
+                        </div>
+                    </div>
+                    <p>"The Highland trails were absolutely breathtaking! Thanks to Wander Critic's detailed guides, I found the perfect hiking routes."</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="static/assets/Profile/Profile 2.jpeg" alt="Michael Chen">
+                        <div>
+                            <h4>Michael Chen</h4>
+                            <p>Photography Lover</p>
+                        </div>
+                    </div>
+                    <p>"Found amazing photography spots through the community recommendations. The sunset at Eilean Donan Castle was unforgettable!"</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="static/assets/Profile/Profile 3.jpeg" alt="Emma Wilson">
+                        <div>
+                            <h4>Emma Wilson</h4>
+                            <p>Cultural Explorer</p>
+                        </div>
+                    </div>
+                    <p>"The local insights helped me discover hidden gems in Edinburgh that I would have never found in typical tourist guides."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
