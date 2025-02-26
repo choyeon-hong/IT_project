@@ -1,0 +1,4 @@
+.DS_Store
+_pycache__/
+bd.sqlite3
+venv/
