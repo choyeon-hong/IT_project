@@ -1,4 +1,5 @@
 {% load static %}
+{% load account %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -20,8 +21,9 @@
             </a>
             <div class="nav-links">
                 <a href="{% url 'wandercritic:explore' %}">Explore</a>
-                <a href="{% url 'wandercritic:login' %}" class="btn btn-outline">Sign In</a>
-                <a href= "{% url 'wandercritic:register' %}" class="btn btn-primary register">Register</a>
+                <a href="{% url 'account_login' %}" class="btn btn-outline">Log In</a>
+                <a href= "{% url 'account_signup' %}" class="btn btn-primary register">Register</a>
+                <a href="{% url 'account_logout' %}" class="btn btn-outline">Log Out</a>
             </div>
         </div>
     </nav>
@@ -38,8 +40,8 @@
             <div class="footer-section">
                 <h3>Pages</h3>
                 <ul>
-                    <li><a href="{% url 'wandercritic:login' %}">Login</a></li>
-                    <li><a href="{% url 'wandercritic:register' %}">Register</a></li>
+                    <li><a href="{% url 'account_login' %}">Login</a></li>
+                    <li><a href="{% url 'account_signup' %}">Register</a></li>
                 </ul>
             </div>
             <div class="footer-section">

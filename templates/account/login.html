@@ -1,8 +1,9 @@
 {% extends 'wandercritic/base.html' %}
 {% load static %} 
+{% load account %}
 
 {% block content %}
-    <style>
+        <style>
         .auth-container {
             max-width: 400px;
             margin: 2rem auto;
@@ -31,22 +32,27 @@
 
     <!-- Main Content -->
     <section class="main-content">
-        <div class="auth-container">
-            <h1>Sign In</h1>
-            <form>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
-                <div class="auth-links">
-                    <p>Don't have an account? <a href="{% url 'wandercritic:register' %}">Sign Up</a></p>
-                </div>
-            </form>
+    <div class="auth-container">
+    <h1>Login</h1>
+    <form method="post" action=".">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="Username">Username</label>
+            {{ form.login }}
+            {{ form.username.errors | safe }}
         </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            {{ form.password }}
+            {{ form.password.errors.as_text }}
+        </div>
+    <button type="submit" class="btn btn-primary" style="width: 100%;">Log In</button>
+    <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+    <p>
+        Not registered?
+    <a href="{% url 'account_signup' %}">Register here!</a>
+    </p>
+    </div>
     </section>
 {% endblock %}

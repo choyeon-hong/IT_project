@@ -17,10 +17,12 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.urls import re_path
 from wandercritic import views
 
 urlpatterns = [
     path('', views.index, name='index'),
     path('wandercritic/', include('wandercritic.urls')), 
     path("admin/", admin.site.urls),
+    path('', include("allauth.urls")),
 ]

@@ -1,47 +1,27 @@
 from typing import Any
 from django import forms
-# from wandercritic.models import Page, Category
 from django.contrib.auth.models import User
-# from wandercritic.models import UserProfile
 
-# class CategoryForm(forms.ModelForm):
-#     name = forms.CharField(max_length=Category.NAME_MAX_LENGTH, help_text="Please enter the category name.")
-#     views = forms.IntegerField(widget=forms.HiddenInput(), initial=0) 
-#     #the fields will be hidden, the user won’t be able to enter a value for these fields
-#     likes = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
-#     slug = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-#     class Meta:
-#         model = Category
-#         fields = ('name',) #specify the fields to include from the form
+from allauth.account.forms import LoginForm
+class MyCustomLoginForm(LoginForm):
 
-# class PageForm(forms.ModelForm):
-#     title = forms.CharField(max_length=Page.TITLE_MAX_LENGTH, help_text="Please enter the title of the page.")
-#     url = forms.URLField(max_length=Page.URL_MAX_LENGTH, help_text="Please enter the URL of the page.")
-#     views = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
+    def login(self, *args, **kwargs):
+
+        # Add your own processing here.
+        # You must return the original result.
+        return super(MyCustomLoginForm, self).login(*args, **kwargs)
     
-#     class Meta:
-#         model = Page
-#         exclude = ('category',) #excludes from the form
 
-#     def clean(self) :
-#         cleaned_data = self.cleaned_data
-#         url = cleaned_data.get('url')
-#         # If url is not empty and doesn't start with 'http://',
-#         # then prepend 'http://'.
-#         if url and not url.startswith('http://'):
-#             url = f'http://{url}'
-#             cleaned_data['url'] = url
-#         return cleaned_data
-    
-class UserForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput())
+from allauth.account.forms import SignupForm
+class MyCustomSignupForm(SignupForm):
 
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'password',)
+    def save(self, request):
 
-# class UserProfileForm(forms.ModelForm):
-#     class Meta:
-#         model = UserProfile
-#         fields = ('website', 'picture',)
+        # Ensure you call the parent class's save.
+        # .save() returns a User object.
+        user = super(MyCustomSignupForm, self).save(request)
+
+        # Add your own processing here.
+        # You must return the original result.
+        return user

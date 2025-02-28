@@ -1,6 +1,7 @@
 from django.db import models
 from django.template.defaultfilters import slugify
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 class Place(models.Model):
 	pname = models.CharField(max_length=50, unique=True)
@@ -31,8 +32,16 @@ class Tour(models.Model):
 		return self.tname
 	
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+#     def __str__(self):
+#         return self.user.username
+	
+
+class User(AbstractUser):
+	# pass
+    full_name = models.CharField(max_length=100, blank=True, null=True)
+    
     def __str__(self):
-        return self.user.username
+        return self.username

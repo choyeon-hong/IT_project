@@ -1,5 +1,7 @@
 {% extends 'wandercritic/base.html' %}
 {% load static %} 
+{% load account %}
+
 
 {% block content %}
     <!-- Hero Section -->
@@ -9,7 +11,7 @@
             <p>Look for the Right Place at Right Place!</p>
             <div class="hero-buttons">
                 <a href="{% url 'wandercritic:explore' %}" class="btn btn-primary">Explore</a>
-                <a href="{% url 'wandercritic:register' %}" class="btn btn-outline btn-light">Register</a>
+                <a href="{% url 'account_signup' %}" class="btn btn-outline btn-light">Register</a>
             </div>
         </div>
     </section>
