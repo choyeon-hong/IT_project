@@ -4,10 +4,28 @@
 {% block content %}
 <div class="my-places-container">
     <div class="header">
-        <h1>My Places</h1>
-        <a href="{% url 'wandercritic:place_create' %}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add New Place
-        </a>
+        {% if viewing_agent %}
+            <div class="agent-header">
+                <div class="agent-info">
+                    {% if viewing_agent.profile_picture %}
+                        <img src="{{ viewing_agent.profile_picture.url }}" alt="{{ viewing_agent.get_full_name }}" class="agent-pic">
+                    {% else %}
+                        <div class="agent-pic"><i class="fas fa-user-circle"></i></div>
+                    {% endif %}
+                    <div>
+                        <h1>Places by {{ viewing_agent.get_full_name }}</h1>
+                        {% if viewing_agent.company_name %}
+                            <p class="company-name">{{ viewing_agent.company_name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <h1>My Places</h1>
+            <a href="{% url 'wandercritic:place_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Place
+            </a>
+        {% endif %}
     </div>
 
     {% if messages %}
@@ -235,6 +253,44 @@
     .alert-error {
         background-color: #f8d7da;
         color: #721c24;
+    }
+
+    .agent-header {
+        width: 100%;
+    }
+
+    .agent-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .agent-pic {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e9ecef;
+    }
+
+    .agent-pic img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .agent-pic i {
+        font-size: 2.5rem;
+        color: #adb5bd;
+    }
+
+    .company-name {
+        color: #6c757d;
+        margin: 0.25rem 0 0;
+        font-size: 1.1rem;
     }
 </style>
 {% endblock %}

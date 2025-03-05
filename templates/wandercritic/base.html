@@ -18,6 +18,10 @@
             </a>
             <div class="nav-links">
                 <a href="{% url 'wandercritic:explore' %}">Explore</a>
+                {% if not user.is_superuser %}
+                    <a href="{% url 'wandercritic:about_us' %}">About Us</a>
+                    <a href="{% url 'wandercritic:contact_us' %}">Contact Us</a>
+                {% endif %}
                 {% if user.is_superuser %}
                     <a href="{% url 'wandercritic:admin_applications' %}" class="btn btn-primary">Applications</a>
                     <a href="{% url 'wandercritic:admin_reports' %}" class="btn btn-primary">View Reports</a>
@@ -26,7 +30,26 @@
                     <a href="{% url 'wandercritic:my_places' %}" class="btn btn-primary">My Posts</a>
                 {% endif %}
                 {% if user.is_authenticated %}
-                    <a href="{% url 'account_logout' %}" class="btn btn-outline">Sign Out</a>
+                    <div class="profile-dropdown">
+                        <button class="profile-button">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Profile" class="profile-pic">
+                            {% else %}
+                                <i class="fas fa-user-circle"></i>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="{% url 'wandercritic:edit_profile' %}">
+                                <i class="fas fa-user-edit"></i> Edit Profile
+                            </a>
+                            <a href="{% url 'wandercritic:change_password' %}">
+                                <i class="fas fa-key"></i> Change Password
+                            </a>
+                            <a href="{% url 'account_logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Sign Out
+                            </a>
+                        </div>
+                    </div>
                 {% else %}
                     <a href="{% url 'account_login' %}" class="btn btn-outline">Sign In</a>
                     <a href="{% url 'account_signup' %}" class="btn btn-primary register">Register</a>
@@ -64,11 +87,11 @@
             <div class="footer-section">
                 <h3>Explore</h3>
                 <ul>
-                    <li><a href="{% url 'wandercritic:explore' %}?category=seasons">Seasons</a></li>
-                    <li><a href="{% url 'wandercritic:explore' %}?category=budget">Budget</a></li>
-                    <li><a href="{% url 'wandercritic:explore' %}?category=continent">Continent</a></li>
-                    <li><a href="{% url 'wandercritic:explore' %}?category=travel-theme">Travel Theme</a></li>
-                    <li><a href="{% url 'wandercritic:explore' %}?category=activity">Activity Based</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=Historic Castles %26 Palaces">Historic Castles & Palaces</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=Highland Landscapes">Highland Landscapes</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=Coastal %26 Islands">Coastal & Islands</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=Cities %26 Urban">Cities & Urban</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=Lochs %26 Waterways">Lochs & Waterways</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -79,93 +102,11 @@
                     <li><a href="{% url 'wandercritic:policy' policy_type='travel-agent' %}">Travel Agent Policy</a></li>
                     <li><a href="{% url 'wandercritic:policy' policy_type='privacy' %}">Privacy & Data Policy</a></li>
                 </ul>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
+
             </div>
         </div>
     </footer>
 
-    <style>
-        /* Global Button Styles */
-        .btn {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-        }
 
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-            border: 1px solid #0056b3;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            color: white;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            color: #007bff;
-            border: 1px solid #007bff;
-        }
-
-        .btn-outline:hover {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-            border: 1px solid #bd2130;
-        }
-
-        .btn-danger:hover {
-            background-color: #bd2130;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: #000;
-            border: 1px solid #d39e00;
-        }
-
-        .btn-warning:hover {
-            background-color: #d39e00;
-            color: #000;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-            border: 1px solid #545b62;
-        }
-
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-
-        .admin-link {
-            background-color: #4a5568;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        
-        .admin-link:hover {
-            background-color: #2d3748;
-        }
-    </style>
 </body>
 </html>

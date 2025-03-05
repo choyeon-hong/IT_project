@@ -9,7 +9,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'created_by', 'created_at', 'rating')
+    list_display = ('name', 'created_by', 'created_at', 'average_rating')
     list_filter = ('categories', 'created_at')
     search_fields = ('name', 'description', 'location')
     prepopulated_fields = {'slug': ('name',)}

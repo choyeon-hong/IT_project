@@ -3,22 +3,38 @@
 
 {% block content %}
 <!-- Search Section -->
-<section class="search-section">
+<section class="search-section" style="background-image: url('{% static "assets/Explore_banner.jpeg" %}');">
     <div class="search-overlay">
         <div class="search-container">
             <h1>Explore Scotland's Hidden Gems</h1>
             <p>Discover breathtaking landscapes, historic castles, and unforgettable experiences</p>
-            <div class="search-box">
-                <input type="text" class="search-input" placeholder="Search for places...">
-                <button class="btn btn-primary">Search</button>
-            </div>
-            <div class="filters">
-                <button class="filter-btn">Landscapes</button>
-                <button class="filter-btn">Castles</button>
-                <button class="filter-btn">Cities</button>
-                <button class="filter-btn">Highlands</button>
-                <button class="filter-btn">Islands</button>
-            </div>
+            <form method="get" action="{% url 'wandercritic:explore' %}" class="search-form">
+                <div class="search-box">
+                    <input type="text" name="search" class="search-input" placeholder="Search for places..." value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+                <div class="filters">
+                    <select name="category" class="filter-select" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <select name="tag" class="filter-select" onchange="this.form.submit()">
+                        <option value="">All Tags</option>
+                        {% for tag in tags %}
+                            <option value="{{ tag.name }}" {% if selected_tag == tag.name %}selected{% endif %}>
+                                {{ tag.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if search_query or selected_category or selected_tag %}
+                        <a href="{% url 'wandercritic:explore' %}" class="btn btn-outline-light">Clear Filters</a>
+                    {% endif %}
+                </div>
+            </form>
         </div>
     </div>
 </section>
@@ -37,16 +53,16 @@
             <div class="place-content">
                 <h3>{{ place.name }}</h3>
                 <div class="rating">
-                    {% with rating=place.rating|default:0 %}
-                        {% with ''|center:rating as stars %}
-                            {% for _ in stars %}★{% endfor %}
-                        {% endwith %}
-                        {% with ''|center:5|length|add:'-'|add:rating as empty_stars %}
-                            {% for _ in empty_stars %}☆{% endfor %}
-                        {% endwith %}
+                    {% with ''|center:place.average_rating as stars %}
+                        {% for _ in stars %}<i class="fas fa-star"></i>{% endfor %}
                     {% endwith %}
+                    <span class="rating-text">{{ place.average_rating|floatformat:1 }}/5 ({{ place.total_ratings }} review{{ place.total_ratings|pluralize }})</span>
                 </div>
-                <p>{{ place.location }}</p>
+                <div class="place-meta">
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> {{ place.location }}</p>
+                    <p class="agent"><i class="fas fa-user"></i> {{ place.created_by.get_full_name }}</p>
+                </div>
+                <p class="description">{{ place.short_description }}</p>
             </div>
         </a>
         {% empty %}
@@ -62,7 +78,6 @@
 
 <style>
     .search-section {
-        background-image: url('{% static "assets/Landscape/AdobeStock_112882161_Preview.jpeg" %}');
         background-size: cover;
         background-position: center;
         padding: 6rem 2rem;
@@ -112,17 +127,32 @@
         justify-content: center;
     }
 
-    .filter-btn {
+    .filter-select {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        border: 1px solid white;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        cursor: pointer;
+        min-width: 150px;
+    }
+
+    .filter-select option {
+        background: #fff;
+        color: #333;
+    }
+
+    .btn-outline-light {
         background: transparent;
         border: 1px solid white;
         color: white;
         padding: 0.5rem 1rem;
         border-radius: 20px;
-        cursor: pointer;
+        text-decoration: none;
         transition: all 0.3s ease;
     }
 
-    .filter-btn:hover {
+    .btn-outline-light:hover {
         background: white;
         color: black;
     }
@@ -161,16 +191,51 @@
     .place-content h3 {
         margin: 0 0 0.5rem;
         color: #333;
+        font-size: 1.25rem;
     }
 
     .rating {
-        color: #ffd700;
-        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
     }
 
-    .place-content p {
-        margin: 0;
+    .rating .fa-star {
+        color: #ffd700;
+    }
+
+    .rating-text {
         color: #666;
+        font-size: 0.9rem;
+    }
+
+    .place-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .place-meta p {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .place-meta i {
+        width: 16px;
+        color: #333;
+    }
+
+    .description {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #444;
+        margin: 0;
     }
 
     .no-places {

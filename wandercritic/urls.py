@@ -21,7 +21,10 @@ urlpatterns = [
     path('places/<slug:slug>/delete/', views.place_delete, name='place_delete'),
     path('places/<slug:slug>/report/', views.report_place, name='report_place'),
     path('my-places/', views.my_places, name='my_places'),
+    path('places/<slug:slug>/reviews/<int:review_id>/delete/', views.review_delete, name='review_delete'),
     path('reports/', views.manage_reports, name='manage_reports'),
+    path('about/', views.about_us, name='about_us'),
+    path('contact/', views.contact_us, name='contact_us'),
     
     # Admin URLs
     path('manage/applications/', views.admin_applications, name='admin_applications'),
@@ -30,4 +33,12 @@ urlpatterns = [
     path('manage/reports/', views.admin_reports, name='admin_reports'),
     path('manage/reports/<int:report_id>/<str:action>/', 
          views.admin_report_action, name='admin_report_action'),
+    
+    # Website Review URLs
+    path('review/', views.add_website_review, name='add_website_review'),
+    path('review/<int:review_id>/delete/', views.delete_website_review, name='delete_website_review'),
+    
+    # Profile URLs
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/change-password/', views.change_password, name='change_password'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

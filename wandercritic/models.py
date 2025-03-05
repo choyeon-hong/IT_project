@@ -9,6 +9,12 @@ class User(AbstractUser):
     is_travel_agent = models.BooleanField(default=False)
     bio = models.TextField(max_length=500, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    contact_number = models.CharField(max_length=20, blank=True)
+    company_name = models.CharField(max_length=100, blank=True)
+    company_website = models.URLField(blank=True)
+    
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip() or self.username
 
 class TravelAgentApplication(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -75,9 +81,6 @@ class Place(models.Model):
     short_description = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
     image = models.ImageField(upload_to='places/')
-    rating = models.DecimalField(max_digits=3, decimal_places=2, 
-                               validators=[MinValueValidator(0), MaxValueValidator(5)],
-                               default=0)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='places')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -100,6 +103,14 @@ class Place(models.Model):
 
     def get_absolute_url(self):
         return reverse('wandercritic:place_detail', kwargs={'slug': self.slug})
+
+    def update_rating(self):
+        reviews = self.review_set.all()
+        if reviews:
+            total = sum(review.rating for review in reviews)
+            self.average_rating = total / len(reviews)
+            self.total_ratings = len(reviews)
+            self.save(update_fields=['average_rating', 'total_ratings'])
 
     @property
     def highlights_list(self):
@@ -167,9 +178,16 @@ class Report(models.Model):
         ('dismissed', 'Dismissed')
     ]
     
+    CONTENT_TYPES = [
+        ('place', 'Place'),
+        ('review', 'Review'),
+        ('user', 'User')
+    ]
+    
     reporter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='reports_filed')
     place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='reports')
     report_type = models.CharField(max_length=20, choices=REPORT_TYPES)
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPES, default='place')
     description = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -191,3 +209,26 @@ class Report(models.Model):
     
     def __str__(self):
         return f"Report by {self.reporter.username if self.reporter else 'Unknown'} on {self.place.name}"
+
+
+class WebsiteReview(models.Model):
+    RATING_CHOICES = [
+        (1, '1 - Poor'),
+        (2, '2 - Fair'),
+        (3, '3 - Good'),
+        (4, '4 - Very Good'),
+        (5, '5 - Excellent'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
+    content = models.TextField()
+    role = models.CharField(max_length=50)  # Will store 'User' or 'Travel Agent'
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_visible = models.BooleanField(default=True)  # For admin to control which reviews to show
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Website review by {self.user.username}'

@@ -164,3 +164,6 @@ LOGIN_REDIRECT_URL = "wandercritic:index"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ACCOUNT_EMAIL_VERIFICATION = "none"
+
+# Skip the sign out confirmation page
+ACCOUNT_LOGOUT_ON_GET = True

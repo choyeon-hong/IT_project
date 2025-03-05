@@ -6,52 +6,23 @@ class Command(BaseCommand):
     help = 'Populates the database with predefined categories and tags'
 
     def handle(self, *args, **kwargs):
-        # Categories based on different classification types
-        categories = {
-            'Seasons': [
-                'Summer Destinations',
-                'Winter Wonderland',
-                'Spring Getaways',
-                'Autumn Adventures'
-            ],
-            'Budget': [
-                'Luxury Travel',
-                'Budget-Friendly',
-                'Mid-Range',
-                'Backpacking'
-            ],
-            'Continent': [
-                'Europe',
-                'Asia',
-                'North America',
-                'South America',
-                'Africa',
-                'Australia',
-                'Antarctica'
-            ],
-            'Travel Theme': [
-                'Adventure Travel',
-                'Cultural Experience',
-                'Food & Cuisine',
-                'Historical Sites',
-                'Beach Paradise',
-                'Mountain Escape',
-                'Urban Exploration',
-                'Wildlife & Nature',
-                'Wellness & Spa'
-            ],
-            'Activity': [
-                'Hiking & Trekking',
-                'Water Sports',
-                'Photography',
-                'Shopping',
-                'Nightlife',
-                'Art & Museums',
-                'Local Markets',
-                'Religious Sites',
-                'Festivals & Events'
-            ]
-        }
+        # Clear existing categories
+        PlaceCategory.objects.all().delete()
+        self.stdout.write(self.style.SUCCESS('Cleared all existing categories'))
+
+        # Main categories focused on Scotland and UK
+        categories = [
+            'Historic Castles & Palaces',  # Edinburgh Castle, Stirling Castle, etc.
+            'Highland Landscapes',         # Scottish Highlands, Glencoe, etc.
+            'Coastal & Islands',           # Isle of Skye, Hebrides, coastal towns
+            'Cities & Urban',              # Edinburgh, Glasgow, Aberdeen
+            'Lochs & Waterways',           # Loch Ness, Loch Lomond
+            'Cultural Heritage',           # Museums, galleries, historical sites
+            'Natural Parks & Gardens',      # Cairngorms, Trossachs
+            'Whisky Distilleries',         # Speyside distilleries, whisky tours
+            'Historic Sites',               # Battlefields, ancient ruins
+            'Traditional Experiences'       # Highland games, ceilidhs, festivals
+        ]
 
         # Popular travel tags
         tags = [
@@ -84,14 +55,13 @@ class Command(BaseCommand):
         ]
 
         # Create categories
-        for category_type, category_list in categories.items():
-            for category_name in category_list:
-                category, created = PlaceCategory.objects.get_or_create(
-                    name=category_name,
-                    defaults={'slug': slugify(category_name)}
-                )
-                if created:
-                    self.stdout.write(self.style.SUCCESS(f'Created category: {category_name}'))
+        for category_name in categories:
+            category, created = PlaceCategory.objects.get_or_create(
+                name=category_name,
+                defaults={'slug': slugify(category_name)}
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Created category: {category_name}'))
 
         # Create tags
         for tag_name in tags:
