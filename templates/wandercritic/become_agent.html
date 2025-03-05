@@ -1,0 +1,120 @@
+{% extends 'wandercritic/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Main Content -->
+<section class="main-content">
+    <div class="agent-form">
+        <h1>Become a Travel Agent</h1>
+        <p>Join our network of professional travel agents and share your expertise with travelers worldwide.</p>
+
+        <div class="benefits">
+            <h2>Benefits of Being a Travel Agent</h2>
+            <ul>
+                <li>Share your travel expertise and earn commission</li>
+                <li>Access to exclusive travel agent tools and resources</li>
+                <li>Connect with travelers looking for authentic experiences</li>
+                <li>Build your professional profile and reputation</li>
+                <li>Flexible work hours and location independence</li>
+            </ul>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="company-name">Company Name (if applicable)</label>
+                <input type="text" id="company-name" name="company_name" placeholder="Enter your company name">
+            </div>
+
+            <div class="form-group">
+                <label for="experience">Years of Experience</label>
+                <select id="experience" name="experience">
+                    <option value="">Select years of experience</option>
+                    <option value="0-2">0-2 years</option>
+                    <option value="3-5">3-5 years</option>
+                    <option value="5-10">5-10 years</option>
+                    <option value="10+">10+ years</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="specialties">Areas of Expertise</label>
+                <select id="specialties" name="specialties" multiple>
+                    <option value="adventure">Adventure Travel</option>
+                    <option value="luxury">Luxury Travel</option>
+                    <option value="budget">Budget Travel</option>
+                    <option value="cultural">Cultural Tours</option>
+                    <option value="food">Food & Wine Tours</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Tell us about yourself</label>
+                <textarea id="description" name="description" placeholder="Share your experience and why you want to join..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="website">Website (if applicable)</label>
+                <input type="url" id="website" name="website" placeholder="Enter your website URL">
+            </div>
+
+            <div class="form-group">
+                <label for="social-media">Social Media Profiles</label>
+                <input type="text" id="social-media" name="social_media" placeholder="Enter your social media handles">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Application</button>
+        </form>
+    </div>
+</section>
+
+<style>
+    .agent-form {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .form-group textarea {
+        min-height: 150px;
+    }
+    .benefits {
+        margin: 2rem 0;
+        padding: 2rem;
+        background: #f9f9f9;
+        border-radius: 8px;
+    }
+    .benefits ul {
+        list-style: none;
+        padding: 0;
+    }
+    .benefits li {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    .benefits li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}

@@ -1,7 +1,5 @@
-{% load static %}
-{% load account %}
-
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
     <!-- Navigation -->
     <nav class="navbar">
@@ -21,9 +18,14 @@
             </a>
             <div class="nav-links">
                 <a href="{% url 'wandercritic:explore' %}">Explore</a>
-                <a href="{% url 'account_login' %}" class="btn btn-outline">Log In</a>
-                <a href= "{% url 'account_signup' %}" class="btn btn-primary register">Register</a>
-                <a href="{% url 'account_logout' %}" class="btn btn-outline">Log Out</a>
+                <a href="{% url 'wandercritic:contact' %}">Contact</a>
+                <a href="{% url 'wandercritic:about' %}">About Us</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'account_logout' %}" class="btn btn-outline">Sign Out</a>
+                {% else %}
+                    <a href="{% url 'account_login' %}" class="btn btn-outline">Sign In</a>
+                    <a href="{% url 'account_signup' %}" class="btn btn-primary register">Register</a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -40,8 +42,14 @@
             <div class="footer-section">
                 <h3>Pages</h3>
                 <ul>
-                    <li><a href="{% url 'account_login' %}">Login</a></li>
-                    <li><a href="{% url 'account_signup' %}">Register</a></li>
+                    <li><a href="{% url 'wandercritic:about' %}">About Us</a></li>
+                    <li><a href="{% url 'wandercritic:contact' %}">Contact Us</a></li>
+                    <li><a href="{% url 'wandercritic:report' %}">Report</a></li>
+                    {% if not user.is_authenticated %}
+                        <li><a href="{% url 'account_login' %}">Login</a></li>
+                        <li><a href="{% url 'account_signup' %}">SignUp</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'wandercritic:become_agent' %}">Become a Travel Agent</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -49,9 +57,25 @@
                 <ul>
                     <li><a href="{% url 'wandercritic:explore' %}?category=seasons">Seasons</a></li>
                     <li><a href="{% url 'wandercritic:explore' %}?category=budget">Budget</a></li>
+                    <li><a href="{% url 'wandercritic:explore' %}?category=continent">Continent</a></li>
                     <li><a href="{% url 'wandercritic:explore' %}?category=travel-theme">Travel Theme</a></li>
                     <li><a href="{% url 'wandercritic:explore' %}?category=activity">Activity Based</a></li>
                 </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Policies</h3>
+                <ul>
+                    <li><a href="{% url 'wandercritic:policy' policy_type='review' %}">Review Policy</a></li>
+                    <li><a href="{% url 'wandercritic:policy' policy_type='user' %}">User Policy</a></li>
+                    <li><a href="{% url 'wandercritic:policy' policy_type='travel-agent' %}">Travel Agent Policy</a></li>
+                    <li><a href="{% url 'wandercritic:policy' policy_type='privacy' %}">Privacy & Data Policy</a></li>
+                </ul>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
             </div>
         </div>
     </footer>

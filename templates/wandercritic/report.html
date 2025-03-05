@@ -1,0 +1,66 @@
+{% extends 'wandercritic/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Main Content -->
+<section class="main-content">
+    <div class="report-form">
+        <h1>Submit a Report</h1>
+        <p>Use this form to report inappropriate content or technical issues.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="report-type">Report Type</label>
+                <select id="report-type" name="report_type" required>
+                    <option value="">Select a report type</option>
+                    <option value="inappropriate">Inappropriate Content</option>
+                    <option value="spam">Spam</option>
+                    <option value="bug">Technical Issue</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="url">URL (if applicable)</label>
+                <input type="url" id="url" name="url" placeholder="Enter the page URL">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Please provide details about the issue..." required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Report</button>
+        </form>
+    </div>
+</section>
+
+<style>
+    .report-form {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .form-group textarea {
+        min-height: 150px;
+    }
+</style>
+{% endblock %}
