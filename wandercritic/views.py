@@ -2,13 +2,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Place, PlaceImage, TravelAgentApplication, Report
-from .forms import PlaceForm, PlaceImageForm, TravelAgentApplicationForm
+from .forms import PlaceForm, PlaceImageForm, TravelAgentApplicationForm, ReportForm
 
 def is_superuser(user):
     return user.is_superuser
 
 def index(request):
-    return render(request, 'wandercritic/index.html')
+    places = Place.objects.all().order_by('-created_at')[:3]  # Get latest 3 places
+    return render(request, 'wandercritic/index.html', {'places': places})
 
 def explore(request):
     places = Place.objects.all().order_by('-created_at')
@@ -52,11 +53,34 @@ def become_agent(request):
     
     return render(request, 'wandercritic/become_agent.html', {'form': form})
 
-def report(request):
+@login_required
+def manage_reports(request):
+    # Get all reports submitted by the user
+    reports = Report.objects.filter(reporter=request.user).order_by('-created_at')
+    return render(request, 'wandercritic/manage_reports.html', {
+        'reports': reports
+    })
+
+@login_required
+def report_place(request, slug):
+    place = get_object_or_404(Place, slug=slug)
+    
     if request.method == 'POST':
-        # Handle form submission here
-        pass
-    return render(request, 'wandercritic/report.html')
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.place = place
+            report.save()
+            messages.success(request, "Your report has been submitted successfully.")
+            return redirect('wandercritic:place_detail', slug=slug)
+    else:
+        form = ReportForm()
+    
+    return render(request, 'wandercritic/report.html', {
+        'form': form,
+        'place': place
+    })
 
 def policy(request, policy_type):
     template_name = f'wandercritic/policies/{policy_type}.html'
@@ -68,6 +92,27 @@ def place_list(request):
 
 def place_detail(request, slug):
     place = get_object_or_404(Place, slug=slug)
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = Review.objects.filter(place=place, user=request.user).first()
+
+    if request.method == 'POST' and request.user.is_authenticated:
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+        
+        if rating and comment:
+            review, created = Review.objects.update_or_create(
+                place=place,
+                user=request.user,
+                defaults={
+                    'rating': rating,
+                    'comment': comment
+                }
+            )
+            messages.success(request, 'Your review has been posted!')
+            return redirect('wandercritic:place_detail', slug=slug)
+
+    reviews = Review.objects.filter(place=place).select_related('user')
     return render(request, 'wandercritic/place_detail.html', {'place': place})
 
 @login_required
@@ -120,6 +165,33 @@ def place_edit(request, slug):
         form = PlaceForm(instance=place)
     
     return render(request, 'wandercritic/place_form.html', {'form': form})
+
+@login_required
+def my_places(request):
+    if not request.user.is_travel_agent:
+        messages.error(request, "Only travel agents can access this page.")
+        return redirect('wandercritic:explore')
+    
+    places = Place.objects.filter(created_by=request.user).order_by('-created_at')
+    return render(request, 'wandercritic/my_places.html', {'places': places})
+
+@login_required
+def place_delete(request, slug):
+    place = get_object_or_404(Place, slug=slug)
+    
+    # Check if user has permission to delete
+    if not (request.user.is_superuser or (request.user.is_travel_agent and request.user == place.created_by)):
+        messages.error(request, "You don't have permission to delete this place.")
+        return redirect('wandercritic:place_detail', slug=slug)
+    
+    if request.method == 'POST':
+        place.delete()
+        messages.success(request, f"{place.name} has been deleted successfully.")
+        if request.user.is_superuser:
+            return redirect('wandercritic:explore')
+        return redirect('wandercritic:my_places')
+    
+    return render(request, 'wandercritic/place_delete.html', {'place': place})
 
 @user_passes_test(is_superuser)
 def admin_applications(request):

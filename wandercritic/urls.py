@@ -11,7 +11,6 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
     path('become-agent/', views.become_agent, name='become_agent'),
-    path('report/', views.report, name='report'),
     path('policies/<str:policy_type>/', views.policy, name='policy'),
     
     # Place URLs
@@ -19,12 +18,16 @@ urlpatterns = [
     path('places/create/', views.place_create, name='place_create'),
     path('places/<slug:slug>/', views.place_detail, name='place_detail'),
     path('places/<slug:slug>/edit/', views.place_edit, name='place_edit'),
+    path('places/<slug:slug>/delete/', views.place_delete, name='place_delete'),
+    path('places/<slug:slug>/report/', views.report_place, name='report_place'),
+    path('my-places/', views.my_places, name='my_places'),
+    path('reports/', views.manage_reports, name='manage_reports'),
     
     # Admin URLs
-    path('admin/applications/', views.admin_applications, name='admin_applications'),
-    path('admin/applications/<int:application_id>/<str:action>/', 
+    path('manage/applications/', views.admin_applications, name='admin_applications'),
+    path('manage/applications/<int:application_id>/<str:action>/', 
          views.admin_application_action, name='admin_application_action'),
-    path('admin/reports/', views.admin_reports, name='admin_reports'),
-    path('admin/reports/<int:report_id>/<str:action>/', 
+    path('manage/reports/', views.admin_reports, name='admin_reports'),
+    path('manage/reports/<int:report_id>/<str:action>/', 
          views.admin_report_action, name='admin_report_action'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -27,62 +27,36 @@
 <section class="main-content">
     <h2>Popular Destinations</h2>
     <div class="places-grid">
-        <a href="{% url 'wandercritic:index' %}" class="place-card">
-            <img src="{% static 'assets/Landscape/AdobeStock_168532350_Preview.jpeg' %}" alt="Edinburgh Castle">
+        {% for place in places %}
+        <a href="{% url 'wandercritic:place_detail' place.slug %}" class="place-card">
+            {% if place.image %}
+                <img src="{{ place.image.url }}" alt="{{ place.name }}">
+            {% else %}
+                <img src="{% static 'assets/Landscape/placeholder.jpg' %}" alt="Placeholder">
+            {% endif %}
             <div class="place-content">
-                <h3>Edinburgh Castle</h3>
-                <div class="rating">★★★★★</div>
-                <p>Historic fortress dominating Edinburgh's skyline</p>
+                <h3>{{ place.name }}</h3>
+                <div class="rating">
+                    {% with rating=place.rating|default:0 %}
+                        {% with ''|center:rating as stars %}
+                            {% for _ in stars %}★{% endfor %}
+                        {% endwith %}
+                        {% with ''|center:5|length|add:'-'|add:rating as empty_stars %}
+                            {% for _ in empty_stars %}☆{% endfor %}
+                        {% endwith %}
+                    {% endwith %}
+                </div>
+                <p>{{ place.location }}</p>
             </div>
         </a>
-        <a href="{% url 'wandercritic:index' %}" class="place-card">
-            <img src="{% static 'assets/Landscape/AdobeStock_162434345_Preview.jpeg' %}" alt="Loch Ness">
-            <div class="place-content">
-                <h3>Loch Ness</h3>
-                <div class="rating">★★★★★</div>
-                <p>Famous lake with mythical creature legends</p>
-            </div>
-        </a>
-        <a href="{% url 'wandercritic:index' %}" class="place-card">
-            <img src="{% static 'assets/Landscape/AdobeStock_234673144_Preview.jpeg' %}" alt="Isle of Skye">
-            <div class="place-content">
-                <h3>Isle of Skye</h3>
-                <div class="rating">★★★★★</div>
-                <p>Stunning landscapes and rich cultural heritage</p>
-            </div>
-        </a>
-        <a href="{% url 'wandercritic:index' %}" class="place-card">
-            <img src="{% static 'assets/Landscape/AdobeStock_220123426_Preview.jpeg' %}" alt="Highland Mountains">
-            <div class="place-content">
-                <h3>Highland Mountains</h3>
-                <div class="rating">★★★★★</div>
-                <p>Majestic peaks and breathtaking valleys</p>
-            </div>
-        </a>
-        <a href="{% url 'wandercritic:index' %}" class="place-card">
-            <img src="{% static 'assets/Landscape/AdobeStock_175958366_Preview.jpeg' %}" alt="Loch Ness">
-            <div class="place-content">
-                <h3>Loch Ness</h3>
-                <div class="rating">★★★★☆</div>
-                <p>Mysterious lake with stunning surroundings</p>
-            </div>
-        </a>
-        <a href="{% url 'wandercritic:index' %}" class="place-card">
-            <img src="{% static 'assets/Landscape/AdobeStock_71855052_Preview.jpeg' %}" alt="Glencoe">
-            <div class="place-content">
-                <h3>Glencoe</h3>
-                <div class="rating">★★★★★</div>
-                <p>Iconic valley with dramatic mountain scenery</p>
-            </div>
-        </a>
-        <a href="{% url 'wandercritic:index' %}" class="place-card">
-            <img src="{% static 'assets/Landscape/AdobeStock_359874571_Preview.jpeg' %}" alt="St Andrews">
-            <div class="place-content">
-                <h3>St Andrews</h3>
-                <div class="rating">★★★★☆</div>
-                <p>Historic coastal town and home of golf</p>
-            </div>
-        </a>
+        {% empty %}
+        <div class="no-places">
+            <p>No places found. Be the first to add one!</p>
+            {% if user.is_travel_agent %}
+                <a href="{% url 'wandercritic:place_create' %}" class="btn btn-primary">Add Place</a>
+            {% endif %}
+        </div>
+        {% endfor %}
     </div>
 </section>
 
@@ -154,7 +128,60 @@
     }
 
     .places-grid {
-        margin-top: 4rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem;
+    }
+
+    .place-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .place-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .place-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .place-content {
+        padding: 1rem;
+    }
+
+    .place-content h3 {
+        margin: 0 0 0.5rem;
+        color: #333;
+    }
+
+    .rating {
+        color: #ffd700;
+        margin-bottom: 0.5rem;
+    }
+
+    .place-content p {
+        margin: 0;
+        color: #666;
+    }
+
+    .no-places {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .no-places .btn {
+        display: inline-block;
+        margin-top: 1rem;
     }
 </style>
 {% endblock %}

@@ -5,23 +5,41 @@
 <div class="place-detail">
     <div class="place-header">
         <div class="place-image">
-            <img src="{{ place.image.url }}" alt="{{ place.name }}">
+            {% if place.image %}
+                <img src="{{ place.image.url }}" alt="{{ place.name }}">
+            {% endif %}
         </div>
         <div class="place-info">
             <h1>{{ place.name }}</h1>
             <div class="rating">
-                {% with ''|center:place.rating.0 as range %}
-                {% for _ in range %}★{% endfor %}
+                {% with rating=place.rating|default:0 %}
+                    {% with ''|center:rating as stars %}
+                        {% for _ in stars %}★{% endfor %}
+                    {% endwith %}
+                    {% with ''|center:5|length|add:'-'|add:rating as empty_stars %}
+                        {% for _ in empty_stars %}☆{% endfor %}
+                    {% endwith %}
+                    {{ rating|floatformat:1 }}/5
                 {% endwith %}
-                {% with ''|center:5|length|add:"-"|add:place.rating.0 as range %}
-                {% for _ in range %}☆{% endfor %}
-                {% endwith %}
-                {{ place.rating }}/5
             </div>
             <p class="location">{{ place.location }}</p>
-            {% if user.is_authenticated and user == place.created_by %}
-                <a href="{% url 'wandercritic:place_edit' place.slug %}" class="btn btn-primary">Edit Place</a>
-            {% endif %}
+            <div class="place-actions">
+                {% if user.is_authenticated %}
+                    {% if user == place.created_by or user.is_travel_agent %}
+                        <a href="{% url 'wandercritic:place_edit' place.slug %}" class="btn btn-primary">
+                            Edit Place
+                        </a>
+                    {% endif %}
+                    {% if user.is_superuser or user == place.created_by %}
+                        <a href="{% url 'wandercritic:place_delete' place.slug %}" class="btn btn-danger">
+                            Delete Place
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'wandercritic:report_place' place.slug %}" class="btn btn-warning">
+                        Report Place
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -74,6 +92,7 @@
         </section>
         {% endif %}
 
+        {% if place.images.exists %}
         <section class="gallery">
             <h2>Photos</h2>
             <div class="image-grid">
@@ -87,20 +106,25 @@
                 {% endfor %}
             </div>
         </section>
+        {% endif %}
 
         <section class="metadata">
+            {% if place.categories.exists %}
             <div class="categories">
                 <h3>Categories:</h3>
                 {% for category in place.categories.all %}
                     <span class="category-tag">{{ category.name }}</span>
                 {% endfor %}
             </div>
+            {% endif %}
+            {% if place.tags.exists %}
             <div class="tags">
                 <h3>Tags:</h3>
                 {% for tag in place.tags.all %}
                     <span class="tag">{{ tag.name }}</span>
                 {% endfor %}
             </div>
+            {% endif %}
         </section>
     </div>
 </div>
@@ -108,7 +132,7 @@
 <style>
     .place-detail {
         max-width: 1200px;
-        margin: 2rem auto;
+        margin: 6rem auto 2rem;  
         padding: 0 1rem;
     }
 
@@ -193,6 +217,48 @@
 
     li {
         margin-bottom: 0.5rem;
+    }
+
+    .place-actions {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: 1px solid #0056b3;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: #000;
+        border: 1px solid #d39e00;
+    }
+
+    .btn-warning:hover {
+        background-color: #d39e00;
+        color: #000;
+    }
+
+    @media (max-width: 768px) {
+        .place-header {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}

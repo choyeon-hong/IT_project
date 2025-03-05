@@ -2,10 +2,9 @@
 {% load static %} 
 {% load account %}
 
-
 {% block content %}
     <!-- Hero Section -->
-    <section class="hero" style="background-image: url('static/assets/Landscape/AdobeStock_162434345_Preview.jpeg');">
+    <section class="hero" style="background-image: url('{% static "assets/Landscape/AdobeStock_162434345_Preview.jpeg" %}');">
         <div class="hero-overlay">
             <h1>Wander Critic</h1>
             <p>Look for the Right Place at Right Place!</p>
@@ -20,30 +19,33 @@
     <section class="main-content">
         <h2>Places to Visit this Season!</h2>
         <div class="places-grid">
-            <a href="static/places/edinburgh-castle.html" class="place-card">
-                <img src="static/assets/Landscape/AdobeStock_168532350_Preview.jpeg" alt="Edinburgh Castle">
-                <div class="place-content">
-                    <h3>Edinburgh Castle</h3>
-                    <div class="rating">★★★★★</div>
-                    <p>Historic fortress dominating Edinburgh's skyline</p>
+            {% if places %}
+                {% for place in places %}
+                    <a href="{% url 'wandercritic:place_detail' place.slug %}" class="place-card">
+                        {% if place.image %}
+                            <img src="{{ place.image.url }}" alt="{{ place.name }}">
+                        {% else %}
+                            <img src="{% static 'assets/Landscape/AdobeStock_168532350_Preview.jpeg' %}" alt="Default Image">
+                        {% endif %}
+                        <div class="place-content">
+                            <h3>{{ place.name }}</h3>
+                            <div class="rating">
+                                {% with rating=place.rating|default:0 %}
+                                    {% with ''|center:rating as stars %}
+                                        {% for _ in stars %}★{% endfor %}
+                                    {% endwith %}
+                                    {{ rating|floatformat:1 }}/5
+                                {% endwith %}
+                            </div>
+                            <p>{{ place.description|truncatechars:100 }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div class="no-places">
+                    <p>No places available yet. Check back soon!</p>
                 </div>
-            </a>
-            <a href="static/places/isle-of-skye.html" class="place-card">
-                <img src="static/assets/Landscape/AdobeStock_234673144_Preview.jpeg" alt="Isle of Skye">
-                <div class="place-content">
-                    <h3>Isle of Skye</h3>
-                    <div class="rating">★★★★★</div>
-                    <p>Dramatic landscapes and stunning coastline</p>
-                </div>
-            </a>
-            <a href="static/places/loch-ness.html" class="place-card">
-                <img src="static/assets/Landscape/AdobeStock_220123426_Preview.jpeg" alt="Highland Mountains">
-                <div class="place-content">
-                    <h3>Loch Ness</h3>
-                    <div class="rating">★★★★★</div>
-                    <p>Famous lake with mythical creature legends</p>
-                </div>
-            </a>
+            {% endif %}
         </div>
     </section>
 
@@ -57,7 +59,7 @@
             <div class="testimonials-grid">
                 <div class="testimonial-card">
                     <div class="testimonial-header">
-                        <img src="static/assets/Profile/Profile 1.jpeg" alt="Sarah Johnson">
+                        <img src="{% static 'assets/Profile/Profile 1.jpeg' %}" alt="Sarah Johnson">
                         <div>
                             <h4>Sarah Johnson</h4>
                             <p>Adventure Enthusiast</p>
@@ -67,7 +69,7 @@
                 </div>
                 <div class="testimonial-card">
                     <div class="testimonial-header">
-                        <img src="static/assets/Profile/Profile 2.jpeg" alt="Michael Chen">
+                        <img src="{% static 'assets/Profile/Profile 2.jpeg' %}" alt="Michael Chen">
                         <div>
                             <h4>Michael Chen</h4>
                             <p>Photography Lover</p>
@@ -77,7 +79,7 @@
                 </div>
                 <div class="testimonial-card">
                     <div class="testimonial-header">
-                        <img src="static/assets/Profile/Profile 3.jpeg" alt="Emma Wilson">
+                        <img src="{% static 'assets/Profile/Profile 3.jpeg' %}" alt="Emma Wilson">
                         <div>
                             <h4>Emma Wilson</h4>
                             <p>Cultural Explorer</p>
@@ -88,4 +90,55 @@
             </div>
         </div>
     </section>
+
+<style>
+    .places-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem 0;
+    }
+
+    .place-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .place-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .place-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .place-content {
+        padding: 1rem;
+    }
+
+    .place-content h3 {
+        margin: 0 0 0.5rem;
+        color: #333;
+    }
+
+    .rating {
+        color: #ffd700;
+        margin-bottom: 0.5rem;
+    }
+
+    .no-places {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+</style>
 {% endblock %}

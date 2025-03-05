@@ -1,9 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+from django.urls import reverse
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 class User(AbstractUser):
     is_travel_agent = models.BooleanField(default=False)
+    bio = models.TextField(max_length=500, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
 
 class TravelAgentApplication(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -36,6 +41,7 @@ class TravelAgentApplication(models.Model):
 class PlaceCategory(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
+    description = models.TextField(blank=True)
     
     def __str__(self):
         return self.name
@@ -63,52 +69,89 @@ class Tag(models.Model):
 class Place(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+    total_ratings = models.PositiveIntegerField(default=0)
     description = models.TextField()
     short_description = models.CharField(max_length=200)
-    rating = models.DecimalField(max_digits=3, decimal_places=2, default=5.00)
     location = models.CharField(max_length=200)
     image = models.ImageField(upload_to='places/')
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, 
+                               validators=[MinValueValidator(0), MaxValueValidator(5)],
+                               default=0)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='places')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    # Additional fields for rich content
+    # Optional fields
     history = models.TextField(blank=True)
     highlights = models.TextField(blank=True)  # Store as JSON list
     best_time_to_visit = models.TextField(blank=True)
     getting_there = models.TextField(blank=True)
     tips = models.TextField(blank=True)  # Store as JSON list
     
-    # For filtering and categorization
-    categories = models.ManyToManyField(PlaceCategory)
-    tags = models.ManyToManyField(Tag)
-    
-    def __str__(self):
-        return self.name
-    
+    # Categories and Tags
+    categories = models.ManyToManyField(PlaceCategory, related_name='places')
+    tags = models.ManyToManyField(Tag, related_name='places')
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-    
+
+    def get_absolute_url(self):
+        return reverse('wandercritic:place_detail', kwargs={'slug': self.slug})
+
     @property
     def highlights_list(self):
-        import json
-        return json.loads(self.highlights) if self.highlights else []
-    
+        if self.highlights:
+            return [h.strip() for h in self.highlights.split('\n') if h.strip()]
+        return []
+
     @property
     def tips_list(self):
-        import json
-        return json.loads(self.tips) if self.tips else []
+        if self.tips:
+            return [t.strip() for t in self.tips.split('\n') if t.strip()]
+        return []
+
+    def __str__(self):
+        return self.name
 
 class PlaceImage(models.Model):
-    place = models.ForeignKey(Place, related_name='images', on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='places/')
     caption = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f"Image for {self.place.name}"
+
+class Review(models.Model):
+    RATING_CHOICES = [
+        (1, '1 - Poor'),
+        (2, '2 - Fair'),
+        (3, '3 - Good'),
+        (4, '4 - Very Good'),
+        (5, '5 - Excellent'),
+    ]
+
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['place', 'user']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.username}\'s review of {self.place.name}'
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.place.update_rating()
 
 class Report(models.Model):
     REPORT_TYPES = [
@@ -131,21 +174,20 @@ class Report(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     resolved_at = models.DateTimeField(null=True, blank=True)
-    resolved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reports_resolved')
-    
-    def __str__(self):
-        return f"Report by {self.reporter.username if self.reporter else 'Unknown'} on {self.place.name}"
+    resolved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, 
+                                  related_name='resolved_reports')
     
     def resolve(self, admin_user):
-        from django.utils import timezone
         self.status = 'resolved'
         self.resolved_at = timezone.now()
         self.resolved_by = admin_user
         self.save()
     
     def dismiss(self, admin_user):
-        from django.utils import timezone
         self.status = 'dismissed'
         self.resolved_at = timezone.now()
         self.resolved_by = admin_user
         self.save()
+    
+    def __str__(self):
+        return f"Report by {self.reporter.username if self.reporter else 'Unknown'} on {self.place.name}"

@@ -1,7 +1,7 @@
 from typing import Any
 from django import forms
 from django.contrib.auth.models import User
-from .models import Place, PlaceImage, TravelAgentApplication
+from .models import Place, PlaceImage, TravelAgentApplication, Report
 import json
 
 from allauth.account.forms import LoginForm
@@ -73,4 +73,12 @@ class TravelAgentApplicationForm(forms.ModelForm):
             'experience': 'Tell us about your experience in the travel industry and why you want to become a travel agent.',
             'company_name': 'If you represent a company, enter its name here.',
             'website': 'Your personal or company website (optional)',
+        }
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['report_type', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
         }
