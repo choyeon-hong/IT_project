@@ -18,8 +18,13 @@
             </a>
             <div class="nav-links">
                 <a href="{% url 'wandercritic:explore' %}">Explore</a>
-                <a href="{% url 'wandercritic:contact' %}">Contact</a>
-                <a href="{% url 'wandercritic:about' %}">About Us</a>
+                {% if user.is_superuser %}
+                    <a href="{% url 'wandercritic:admin_applications' %}" class="btn btn-primary">Applications</a>
+                    <a href="{% url 'wandercritic:admin_reports' %}" class="btn btn-primary">View Reports</a>
+                {% else %}
+                    <a href="{% url 'wandercritic:contact' %}">Contact</a>
+                    <a href="{% url 'wandercritic:about' %}">About Us</a>
+                {% endif %}
                 {% if user.is_authenticated %}
                     <a href="{% url 'account_logout' %}" class="btn btn-outline">Sign Out</a>
                 {% else %}
@@ -42,14 +47,18 @@
             <div class="footer-section">
                 <h3>Pages</h3>
                 <ul>
-                    <li><a href="{% url 'wandercritic:about' %}">About Us</a></li>
-                    <li><a href="{% url 'wandercritic:contact' %}">Contact Us</a></li>
+                    {% if not user.is_superuser %}
+                        <li><a href="{% url 'wandercritic:about' %}">About Us</a></li>
+                        <li><a href="{% url 'wandercritic:contact' %}">Contact Us</a></li>
+                    {% endif %}
                     <li><a href="{% url 'wandercritic:report' %}">Report</a></li>
                     {% if not user.is_authenticated %}
                         <li><a href="{% url 'account_login' %}">Login</a></li>
                         <li><a href="{% url 'account_signup' %}">SignUp</a></li>
                     {% endif %}
-                    <li><a href="{% url 'wandercritic:become_agent' %}">Become a Travel Agent</a></li>
+                    {% if not user.is_superuser %}
+                        <li><a href="{% url 'wandercritic:become_agent' %}">Become a Travel Agent</a></li>
+                    {% endif %}
                 </ul>
             </div>
             <div class="footer-section">
@@ -79,5 +88,19 @@
             </div>
         </div>
     </footer>
+
+    <style>
+        .admin-link {
+            background-color: #4a5568;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .admin-link:hover {
+            background-color: #2d3748;
+        }
+    </style>
 </body>
 </html>

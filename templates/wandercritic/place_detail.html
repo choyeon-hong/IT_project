@@ -1,0 +1,198 @@
+{% extends 'wandercritic/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="place-detail">
+    <div class="place-header">
+        <div class="place-image">
+            <img src="{{ place.image.url }}" alt="{{ place.name }}">
+        </div>
+        <div class="place-info">
+            <h1>{{ place.name }}</h1>
+            <div class="rating">
+                {% with ''|center:place.rating.0 as range %}
+                {% for _ in range %}★{% endfor %}
+                {% endwith %}
+                {% with ''|center:5|length|add:"-"|add:place.rating.0 as range %}
+                {% for _ in range %}☆{% endfor %}
+                {% endwith %}
+                {{ place.rating }}/5
+            </div>
+            <p class="location">{{ place.location }}</p>
+            {% if user.is_authenticated and user == place.created_by %}
+                <a href="{% url 'wandercritic:place_edit' place.slug %}" class="btn btn-primary">Edit Place</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="place-content">
+        <section class="description">
+            <h2>About</h2>
+            {{ place.description|linebreaks }}
+        </section>
+
+        {% if place.highlights %}
+        <section class="highlights">
+            <h2>Highlights</h2>
+            <ul>
+                {% for highlight in place.highlights_list %}
+                    <li>{{ highlight }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+
+        {% if place.history %}
+        <section class="history">
+            <h2>History</h2>
+            {{ place.history|linebreaks }}
+        </section>
+        {% endif %}
+
+        {% if place.best_time_to_visit %}
+        <section class="visit-info">
+            <h2>Best Time to Visit</h2>
+            {{ place.best_time_to_visit|linebreaks }}
+        </section>
+        {% endif %}
+
+        {% if place.getting_there %}
+        <section class="directions">
+            <h2>Getting There</h2>
+            {{ place.getting_there|linebreaks }}
+        </section>
+        {% endif %}
+
+        {% if place.tips %}
+        <section class="tips">
+            <h2>Travel Tips</h2>
+            <ul>
+                {% for tip in place.tips_list %}
+                    <li>{{ tip }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+
+        <section class="gallery">
+            <h2>Photos</h2>
+            <div class="image-grid">
+                {% for image in place.images.all %}
+                    <div class="gallery-image">
+                        <img src="{{ image.image.url }}" alt="{{ image.caption }}">
+                        {% if image.caption %}
+                            <p class="caption">{{ image.caption }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="metadata">
+            <div class="categories">
+                <h3>Categories:</h3>
+                {% for category in place.categories.all %}
+                    <span class="category-tag">{{ category.name }}</span>
+                {% endfor %}
+            </div>
+            <div class="tags">
+                <h3>Tags:</h3>
+                {% for tag in place.tags.all %}
+                    <span class="tag">{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .place-detail {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .place-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .place-image img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .place-info {
+        padding: 1rem;
+    }
+
+    .rating {
+        color: #ffd700;
+        font-size: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .location {
+        font-size: 1.2rem;
+        color: #666;
+    }
+
+    .place-content section {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .gallery-image img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .caption {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .category-tag, .tag {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        margin: 0.2rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+
+    .category-tag {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .tag {
+        background: #f5f5f5;
+        color: #616161;
+    }
+
+    ul {
+        list-style-position: inside;
+        padding-left: 1rem;
+    }
+
+    li {
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
