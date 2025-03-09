@@ -180,12 +180,13 @@ class Report(models.Model):
     
     CONTENT_TYPES = [
         ('place', 'Place'),
-        ('review', 'Review'),
-        ('user', 'User')
+        ('user', 'User'),
+        ('bug', 'Bug')
     ]
     
     reporter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='reports_filed')
-    place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='reports')
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='reports',null=True)
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='reports', null=True, blank=True)
     report_type = models.CharField(max_length=20, choices=REPORT_TYPES)
     content_type = models.CharField(max_length=20, choices=CONTENT_TYPES, default='place')
     description = models.TextField()
@@ -194,6 +195,7 @@ class Report(models.Model):
     resolved_at = models.DateTimeField(null=True, blank=True)
     resolved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, 
                                   related_name='resolved_reports')
+    url = models.URLField()
     
     def resolve(self, admin_user):
         self.status = 'resolved'

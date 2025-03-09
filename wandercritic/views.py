@@ -4,8 +4,10 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.contrib.auth import get_user_model
 from .models import Place, PlaceImage, TravelAgentApplication, Report, Review, PlaceCategory, Tag, WebsiteReview
-from .forms import (PlaceForm, PlaceImageForm, TravelAgentApplicationForm, ReportForm, 
+from .forms import (PlaceForm, PlaceImageForm, TravelAgentApplicationForm, ReportForm, ReportReviewForm, BugReportForm,
     WebsiteReviewForm, UserProfileForm, TravelAgentProfileForm, PasswordChangeForm)
+from django.core.paginator import Paginator
+from urllib.parse import urlparse
 
 def is_superuser(user):
     return user.is_superuser
@@ -143,6 +145,34 @@ def report_place(request, slug):
         'form': form,
         'place': place
     })
+
+
+@login_required
+def report_review(request, slug, review_id):
+    place = get_object_or_404(Place, slug=slug)
+    review = get_object_or_404(Review, id=review_id)
+
+    if request.method == "POST":
+        form = ReportReviewForm(request.POST, review=review)
+        
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.place = place
+            report.review = review
+            report.save()
+
+            messages.success(request, "Your report has been submitted successfully.")
+            return redirect('wandercritic:place_detail', slug=slug)
+    else:
+        form = ReportReviewForm(review=review) 
+
+    return render(request, 'wandercritic/report_review.html', {
+        'place': place,
+        'review': review,
+        'form': form
+    })
+
 
 def policy(request, policy_type):
     template_name = f'wandercritic/policies/{policy_type}.html'
@@ -295,23 +325,34 @@ def admin_application_action(request, application_id, action):
 @user_passes_test(is_superuser)
 def admin_reports(request):
     reports = Report.objects.all().order_by('-created_at')
+    paginator = Paginator(reports, 10)  # 10 cards
+    page_number = request.GET.get('page')
+    reports_page = paginator.get_page(page_number)
+
     return render(request, 'wandercritic/admin/reports.html', {
-        'reports': reports
+        'reports': reports_page,
+        'page_obj': reports_page
     })
+
 
 @user_passes_test(is_superuser)
 def admin_report_action(request, report_id, action):
     report = get_object_or_404(Report, id=report_id)
     
+    if report.place:
+        place_name = report.place.name
+    elif report.content_type == 'bug':
+        place_name = f"Bug on {report.url}"
+    else:
+        place_name = "Unknown Report"
     if action == 'resolve':
         report.resolve(request.user)
-        messages.success(request, f"Report on {report.place.name} has been resolved.")
+        messages.success(request, f"Report on {place_name} has been resolved.")
     elif action == 'dismiss':
         report.dismiss(request.user)
-        messages.success(request, f"Report on {report.place.name} has been dismissed.")
+        messages.success(request, f"Report on {place_name} has been dismissed.")
     
     return redirect('wandercritic:admin_reports')
-
 
 @login_required
 def edit_profile(request):
@@ -385,3 +426,30 @@ def delete_website_review(request, review_id):
     review.delete()
     messages.success(request, 'Review deleted successfully.')
     return redirect('wandercritic:index')
+
+
+@login_required
+
+def report_bug(request):
+    full_url = request.GET.get('url', '')
+
+    parsed_url = urlparse(full_url)
+    path_only = parsed_url.path 
+
+    current_url = f"http://{request.get_host()}{path_only}"
+
+    if request.method == 'POST':
+        form = BugReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.url = current_url
+            report.reporter = request.user
+            report.save()
+            return redirect('wandercritic:index')
+    else:
+        form = BugReportForm()
+
+    return render(request, 'wandercritic/report_bug.html', {
+        'form': form,
+        'url': current_url
+    })

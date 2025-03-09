@@ -84,6 +84,25 @@ class ReportForm(forms.ModelForm):
         }
 
 
+class ReportReviewForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['report_type', 'description'] 
+
+    def __init__(self, *args, **kwargs):
+        self.review = kwargs.pop('review', None) 
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        report = super().save(commit=False)
+        if self.review:
+            report.content_type = 'review'
+            report.review = self.review
+        if commit:
+            report.save()
+        return report
+
+
 class WebsiteReviewForm(forms.ModelForm):
     class Meta:
         model = WebsiteReview
@@ -134,3 +153,19 @@ class PasswordChangeForm(forms.Form):
         if new_password and confirm_password and new_password != confirm_password:
             raise forms.ValidationError('New passwords do not match')
         return cleaned_data
+    
+
+class BugReportForm(forms.ModelForm):
+
+    class Meta:
+        model = Report
+        fields = ['report_type', 'content_type', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Please provide details about your report...'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set the content_type as 'bug' by default
+        self.fields['content_type'].initial = 'bug'
+        self.fields['content_type'].disabled = True

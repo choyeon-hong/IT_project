@@ -259,6 +259,11 @@
                                         {% endfor %}
                                         {% endwith %}
                                     </div>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'wandercritic:report_review' place.slug review.id %}" class="btn btn-warning">
+                                            <i class="fas fa-flag"></i> Report
+                                        </a>
+                                    </div>
                                 </div>
                                 <p class="review-comment">{{ review.comment }}</p>
                                 {% if user.is_superuser %}

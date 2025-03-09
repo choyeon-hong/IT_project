@@ -37,6 +37,9 @@ urlpatterns = [
     # Website Review URLs
     path('review/', views.add_website_review, name='add_website_review'),
     path('review/<int:review_id>/delete/', views.delete_website_review, name='delete_website_review'),
+    # report a review and bug URLs
+    path('place/<slug:slug>/review/<int:review_id>/report/', views.report_review, name='report_review'),
+    path('report_bug/', views.report_bug, name='report_bug'), 
     
     # Profile URLs
     path('profile/edit/', views.edit_profile, name='edit_profile'),

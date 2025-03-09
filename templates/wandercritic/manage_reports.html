@@ -5,23 +5,18 @@
 <div class="reports-container">
     <h1>My Reports</h1>
 
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
     {% if reports %}
         <div class="reports-list">
             {% for report in reports %}
             <div class="report-card">
                 <div class="report-header">
                     <div class="report-title">
-                        <h2>Report on {{ report.place.name }}</h2>
+                        {% if report.content_type == 'place' %}
+                            <h2>Report on {{ report.place.name }}</h2>
+                        {% elif report.content_type == 'review' %}
+                            <h2>Report on Review of {{ report.review.place.name }}</h2>
+                        {% endif %}
+                        
                         <span class="report-type">{{ report.get_report_type_display }}</span>
                     </div>
                     <span class="status status-{{ report.status }}">{{ report.status|title }}</span>
@@ -46,9 +41,15 @@
                 </div>
 
                 <div class="action-buttons">
-                    <a href="{% url 'wandercritic:place_detail' report.place.slug %}" class="btn btn-info">
-                        View Place
-                    </a>
+                    {% if report.content_type == 'place' %}
+                        <a href="{% url 'wandercritic:place_detail' report.place.slug %}" class="btn btn-info">
+                            View Place
+                        </a>
+                    {% elif report.content_type == 'review' %}
+                        <a href="{% url 'wandercritic:place_detail' report.place.slug %}" class="btn btn-info">
+                            View Review
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -56,10 +57,11 @@
     {% else %}
         <div class="no-reports">
             <p>You haven't submitted any reports yet.</p>
-            <p>If you find any issues with a place, you can report it from the place's detail page.</p>
+            <p>If you find any issues with a place or review, you can report it from the respective page.</p>
         </div>
     {% endif %}
 </div>
+
 
 <style>
     .reports-container {

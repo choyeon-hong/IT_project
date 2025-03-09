@@ -74,10 +74,11 @@
                     <li><a href="{% url 'wandercritic:contact' %}">Contact Us</a></li>
                     {% if not user.is_authenticated %}
                         <li><a href="{% url 'account_login' %}">Login</a></li>
-                        <li><a href="{% url 'account_signup' %}">SignUp</a></li>
+                        <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
                     {% endif %}
-                    {% if not user.is_superuser %}
-                        <li><a href="{% url 'wandercritic:manage_reports' %}">Report an Issue</a></li>
+                    {% if not user.is_superuser and user.is_authenticated %}
+                        <li><a href="{% url 'wandercritic:manage_reports' %}">My Reports</a></li>
+                        <li><a href="{% url 'wandercritic:report_bug' %}?url={{ request.build_absolute_uri }}">Report a bug</a></li>
                     {% endif %}
                     {% if not user.is_travel_agent and not user.is_superuser %}
                         <li><a href="{% url 'wandercritic:become_agent' %}">Become a Travel Agent</a></li>
