@@ -37,7 +37,7 @@ class PlaceForm(forms.ModelForm):
         model = Place
         fields = ['name', 'description', 'short_description', 'location', 
                  'image', 'history', 'highlights', 'best_time_to_visit',
-                 'getting_there', 'tips', 'categories', 'tags']
+                 'getting_there', 'tips', 'categories', 'tags', 'budget']
     
     def clean_highlights(self):
         highlights = self.cleaned_data.get('highlights', '')

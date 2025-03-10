@@ -91,6 +91,13 @@ class Place(models.Model):
     best_time_to_visit = models.TextField(blank=True)
     getting_there = models.TextField(blank=True)
     tips = models.TextField(blank=True)  # Store as JSON list
+    budget = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Estimated budget for the trip in GBP",
+        null=True,
+        blank=True
+    )
     
     # Categories and Tags
     categories = models.ManyToManyField(PlaceCategory, related_name='places')

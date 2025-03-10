@@ -30,6 +30,14 @@
                             </option>
                         {% endfor %}
                     </select>
+                    <select name="budget_range" class="filter-select" onchange="this.form.submit()">
+                        <option value="">All Budgets</option>
+                        {% for range_value, range_display in budget_ranges %}
+                            <option value="{{ range_value }}" {% if selected_budget_range == range_value %}selected{% endif %}>
+                                {{ range_display }}
+                            </option>
+                        {% endfor %}
+                    </select>
                     {% if search_query or selected_category or selected_tag %}
                         <a href="{% url 'wandercritic:explore' %}" class="btn btn-outline-light">Clear Filters</a>
                     {% endif %}
@@ -141,6 +149,8 @@
         background: #fff;
         color: #333;
     }
+
+
 
     .btn-outline-light {
         background: transparent;

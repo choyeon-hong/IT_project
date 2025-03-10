@@ -22,6 +22,9 @@
                 <span class="rating-text">{{ place.average_rating|floatformat:1 }}/5 ({{ place.total_ratings }} rating{{ place.total_ratings|pluralize }})</span>
             </div>
             <p class="location"><i class="fas fa-map-marker-alt"></i> {{ place.location }}</p>
+            {% if place.budget %}
+            <p class="budget"><i class="fas fa-pound-sign"></i> Estimated Budget: £{{ place.budget|floatformat:2 }}</p>
+            {% endif %}
             <div class="travel-agent">
                 <div class="agent-info">
                     {% if place.created_by.profile_picture %}
@@ -64,7 +67,6 @@
     <div class="place-content">
 
         <section class="description">
-
             <h2>About</h2>
             {{ place.description|linebreaks }}
         </section>

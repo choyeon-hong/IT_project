@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.contrib.auth import get_user_model
+from django.db.models import Avg
 from .models import Place, PlaceImage, TravelAgentApplication, Report, Review, PlaceCategory, Tag, WebsiteReview
 from .forms import (PlaceForm, PlaceImageForm, TravelAgentApplicationForm, ReportForm, ReportReviewForm, BugReportForm,
     WebsiteReviewForm, UserProfileForm, TravelAgentProfileForm, PasswordChangeForm)
@@ -13,7 +14,9 @@ def is_superuser(user):
     return user.is_superuser
 
 def index(request):
-    places = Place.objects.all().order_by('-created_at')[:5]  # Get latest 5 places
+    places = Place.objects.annotate(
+        avg_rating=Avg('review__rating')
+    ).order_by('-avg_rating', '-created_at')[:5]  # Get top 5 rated places
     website_reviews = WebsiteReview.objects.filter(is_visible=True).order_by('-created_at')[:3]  # Get latest 3 reviews
     return render(request, 'wandercritic/index.html', {
         'places': places,
@@ -25,6 +28,7 @@ def explore(request):
     search_query = request.GET.get('search', '')
     category = request.GET.get('category', '')
     tag = request.GET.get('tag', '')
+    budget_range = request.GET.get('budget_range', '')
     
     if search_query:
         places = places.filter(name__icontains=search_query) | \
@@ -37,11 +41,39 @@ def explore(request):
     if tag:
         places = places.filter(tags__name=tag)
     
+    if budget_range:
+        ranges = {
+            '0-10': (0, 10),
+            '11-20': (11, 20),
+            '21-50': (21, 50),
+            '51-100': (51, 100),
+            '101-200': (101, 200),
+            '201+': (201, 999999)
+        }
+        if budget_range in ranges:
+            min_val, max_val = ranges[budget_range]
+            if budget_range == '201+':
+                places = places.filter(budget__gte=min_val)
+            else:
+                places = places.filter(budget__range=(min_val, max_val))
+    
     # Get all categories and tags for filters
     categories = PlaceCategory.objects.all()
     tags = Tag.objects.all()
     
-    places = places.order_by('-created_at').distinct()
+    # Define budget ranges for the template
+    budget_ranges = [
+        ('0-10', '£0 - £10'),
+        ('11-20', '£11 - £20'),
+        ('21-50', '£21 - £50'),
+        ('51-100', '£51 - £100'),
+        ('101-200', '£101 - £200'),
+        ('201+', '£201+')
+    ]
+    
+    places = places.annotate(
+        avg_rating=Avg('review__rating')
+    ).order_by('-avg_rating', '-created_at').distinct()
     
     context = {
         'places': places,
@@ -49,7 +81,9 @@ def explore(request):
         'tags': tags,
         'search_query': search_query,
         'selected_category': category,
-        'selected_tag': tag
+        'selected_tag': tag,
+        'budget_ranges': budget_ranges,
+        'selected_budget_range': budget_range
     }
     return render(request, 'wandercritic/explore.html', context)
 
