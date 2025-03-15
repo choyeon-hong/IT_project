@@ -21,7 +21,10 @@
                 </div>
                 <span class="rating-text">{{ place.average_rating|floatformat:1 }}/5 ({{ place.total_ratings }} rating{{ place.total_ratings|pluralize }})</span>
             </div>
-            <p class="location"><i class="fas fa-map-marker-alt"></i> {{ place.location }}</p>
+            <div class="location-container">
+                <p class="location"><i class="fas fa-map-marker-alt"></i> {{ place.location }}</p>
+                <button id="view-map-btn" class="btn btn-sm btn-primary"><i class="fas fa-map"></i> View on Map</button>
+            </div>
             {% if place.budget %}
             <p class="budget"><i class="fas fa-pound-sign"></i> Estimated Budget: £{{ place.budget|floatformat:2 }}</p>
             {% endif %}
@@ -60,6 +63,18 @@
                         </div>
                     {% endif %}
                 {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Modal -->
+    <div id="map-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>{{ place.name }} - Location Map</h2>
+            <p class="modal-subtitle">View and navigate to this location</p>
+            <div id="map-container">
+                <div id="map"></div>
             </div>
         </div>
     </div>
@@ -147,6 +162,46 @@
                 {% endfor %}
             </div>
             {% endif %}
+        </section>
+
+        <section class="map-preview">
+            <h2>Location</h2>
+            <div class="location-map-container">
+                <div class="map-background">
+                    <div class="map-fallback">
+                        <!-- Map grid pattern will show here as fallback -->
+                    </div>
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        frameborder="0" 
+                        scrolling="no" 
+                        marginheight="0" 
+                        marginwidth="0" 
+                        src="https://maps.google.com/maps?q={{ place.location|urlencode }}&t=&z=13&ie=UTF8&iwloc=&output=embed" 
+                        style="border: none; position: absolute; top: 0; left: 0; z-index: 1;"
+                        class="static-map-image"
+                        loading="lazy"
+                        title="Map of {{ place.name }}"
+                        onerror="this.style.display='none'">
+                    </iframe>
+                    <div class="location-marker">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                </div>
+                <div class="location-details">
+                    <h3>{{ place.name }}</h3>
+                    <p>{{ place.location }}</p>
+                </div>
+            </div>
+            <div class="map-actions-container">
+                <a href="https://www.google.com/maps/search/?api=1&query={{ place.location|urlencode }}" target="_blank" class="action-btn open-maps-btn">
+                    <i class="fas fa-external-link-alt"></i> Open in Google Maps
+                </a>
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ place.location|urlencode }}" target="_blank" class="action-btn directions-btn">
+                    <i class="fas fa-directions"></i> Get Directions
+                </a>
+            </div>
         </section>
 
         <section class="reviews">
@@ -514,5 +569,330 @@
         display: flex;
         gap: 0.75rem;
     }
+
+    /* Map Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 800px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+    }
+
+    .modal-subtitle {
+        color: #6c757d;
+        margin-top: -10px;
+        margin-bottom: 20px;
+        font-size: 1rem;
+    }
+
+    #map-container {
+        margin-top: 20px;
+    }
+
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    .location-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #view-map-btn {
+        white-space: nowrap;
+    }
+
+    /* Map Preview Styles */
+    .map-preview-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-top: 15px;
+    }
+
+    .location-map-container {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 0;
+        margin-top: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .map-background {
+        width: 100%;
+        height: 260px;
+        background-color: #e9ecef;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .map-fallback {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+    }
+
+    .static-map-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+
+    /* Add a subtle grid pattern to simulate a map */
+    .map-background:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            linear-gradient(rgba(200,200,200,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(200,200,200,0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+        z-index: 0;
+    }
+
+    /* Add a pulsing circle behind the marker */
+    .location-marker {
+        font-size: 36px;
+        color: #e74c3c;
+        position: relative;
+        z-index: 2;
+    }
+
+    .location-marker:before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        background-color: rgba(231, 76, 60, 0.3);
+        border-radius: 50%;
+        z-index: -1;
+        animation: pulse 2s infinite;
+    }
+
+    .location-marker i {
+        filter: drop-shadow(0 0 3px rgba(255,255,255,0.7));
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(3);
+            opacity: 0;
+        }
+    }
+
+    .location-details {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .location-details h3 {
+        margin: 0 0 10px 0;
+        font-size: 22px;
+        color: #343a40;
+        font-weight: 600;
+    }
+
+    .location-details p {
+        margin: 0 0 25px 0;
+        color: #6c757d;
+        font-size: 16px;
+    }
+
+    .map-btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        border: none;
+    }
+
+    .map-btn:hover {
+        background-color: #0069d9;
+        color: white;
+        text-decoration: none;
+    }
+
+    .map-btn i {
+        font-size: 18px;
+    }
+
+    .map-actions-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .action-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .open-maps-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+    }
+
+    .open-maps-btn:hover {
+        background-color: #0069d9;
+        color: white;
+    }
+
+    .directions-btn {
+        background-color: transparent;
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+    .directions-btn:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+        color: #0056b3;
+    }
+
+    .action-btn i {
+        font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .map-preview-container {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the modal
+        const modal = document.getElementById('map-modal');
+        
+        // Get the button that opens the modal
+        const btn = document.getElementById('view-map-btn');
+        
+        // Get the <span> element that closes the modal
+        const span = document.getElementsByClassName('close')[0];
+        
+        // When the user clicks the button, open the modal 
+        btn.onclick = function() {
+            modal.style.display = 'block';
+            loadMap();
+        }
+        
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+        
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Load the map using a direct link to Google Maps
+        function loadMap() {
+            const locationText = "{{ place.location }}";
+            const mapContainer = document.getElementById('map');
+            
+            // Create a fallback that works without an API key
+            mapContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <p><i class="fas fa-map-marker-alt" style="font-size: 48px; color: #dc3545; margin-bottom: 20px;"></i></p>
+                    <h3 style="margin-bottom: 10px;">{{ place.name }}</h3>
+                    <p style="margin-bottom: 30px; color: #495057;"><i class="fas fa-location-dot"></i> {{ place.location }}</p>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}" 
+                           target="_blank" class="btn btn-primary">
+                           <i class="fas fa-map"></i> View on Google Maps
+                        </a>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationText)}" 
+                           target="_blank" class="btn btn-outline-primary">
+                           <i class="fas fa-directions"></i> Get Directions
+                        </a>
+                    </div>
+                    <p style="margin-top: 30px; font-size: 0.9rem; color: #6c757d;">
+                        <i class="fas fa-info-circle"></i> Click on the buttons above to view this location on Google Maps or get directions.
+                    </p>
+                </div>
+            `;
+        }
+    });
+</script>
 {% endblock %}
